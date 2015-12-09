@@ -1,0 +1,25 @@
+build:
+  image: golang:1.5
+  commands:
+    - make deps
+    - make build
+    - make test
+
+publish:
+  docker:
+    username: drone
+    password: $$DOCKER_PASS
+    email: $$DOCKER_EMAIL
+    repo: plugins/drone-rubygems
+    when:
+      branch: master
+
+plugin:
+  name: Rubygems
+  desc: Publish gems to a Rubygems server
+  type: publish
+  image: plugins/drone-rubygems
+  labels:
+    - ruby
+    - gem
+    - rubygems
