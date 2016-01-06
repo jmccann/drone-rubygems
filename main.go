@@ -66,7 +66,7 @@ func buildDpl(workspace *drone.Workspace, repo *drone.Repo, build *drone.Build, 
 
 	if len(vargs.Username) > 0 {
 		args = append(args, fmt.Sprintf(
-			"--username=%s",
+			"--user=%s",
 			vargs.Username))
 	}
 
