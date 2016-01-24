@@ -22,7 +22,7 @@ make deps build
     "repo": {
         "clone_url": "git://github.com/drone/drone",
         "owner": "drone",
-        "name": "dron",
+        "name": "drone",
         "full_name": "drone/drone"
     },
     "system": {
@@ -69,7 +69,7 @@ docker run -i plugins/drone-rubygems <<EOF
     "repo": {
         "clone_url": "git://github.com/drone/drone",
         "owner": "drone",
-        "name": "dron",
+        "name": "drone",
         "full_name": "drone/drone"
     },
     "system": {
