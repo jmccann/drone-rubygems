@@ -4,7 +4,7 @@
 [![Coverage Status](https://aircover.co/badges/drone-plugins/drone-rubygems/coverage.svg)](https://aircover.co/drone-plugins/drone-rubygems)
 [![](https://badge.imagelayers.io/plugins/drone-rubygems:latest.svg)](https://imagelayers.io/?images=plugins/drone-rubygems:latest 'Get your own badge on imagelayers.io')
 
-Drone plugin to publish ruby gems to a Rubygems server
+Drone plugin to publish ruby gems to a Rubygems server. For the usage information and a listing of the available options please take a look at [the docs](DOCS.md).
 
 ## Binary
 
