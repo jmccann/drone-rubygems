@@ -20,13 +20,13 @@ or **RUBYGEMS_API_KEY** into secrets so it is not exposed to users. This can be
 done using the drone-cli.
 
 ```bash
-drone secret add --image=plugins/drone-rubygems:latest \
+drone secret add --image=jmccann/drone-rubygems:latest \
     octocat/hello-world RUBYGEMS_USERNAME kevinbacon
 
-drone secret add --image=plugins/drone-rubygems:latest \
+drone secret add --image=jmccann/drone-rubygems:latest \
     octocat/hello-world RUBYGEMS_PASSWORD pa55word
 
-drone secret add --image=plugins/drone-rubygems:latest \
+drone secret add --image=jmccann/drone-rubygems:latest \
     octocat/hello-world RUBYGEMS_API_KEY abcd12345
 ```
 
@@ -46,7 +46,7 @@ The following is a sample configuration in your `.drone.yml` file:
 ```yaml
 pipeline:
   rubygems:
-    image: plugins/drone-rubygems:latest
+    image: jmccann/drone-rubygems:latest
     when:
       branch: master
 ```
