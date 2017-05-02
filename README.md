@@ -22,5 +22,5 @@ docker run --rm \
   -e PLUGIN_REPO=octocat/hello-world \
   -v $(pwd):$(pwd) \
   -w $(pwd) \
-  plugins/drone-rubygems --help
+  jmccann/drone-rubygems --help
 ```
