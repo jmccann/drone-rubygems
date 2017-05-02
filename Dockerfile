@@ -1,9 +1,3 @@
-# Docker image for the Drone Rubygems plugin
-#
-#     cd $GOPATH/src/github.com/jmccann/drone-rubygems
-#     make deps build
-#     docker build --rm=true -t jmccann/drone-rubygems .
-
 FROM alpine:3.2
 
 RUN apk update && \
