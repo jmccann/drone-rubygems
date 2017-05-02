@@ -3,103 +3,94 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/exec"
 
-	"github.com/drone/drone-go/drone"
-	"github.com/drone/drone-go/plugin"
+	"github.com/Sirupsen/logrus"
+	"github.com/urfave/cli"
 )
 
-var (
-	buildCommit string
-)
+var buildCommit string // build number set at compile-time
 
 func main() {
-	fmt.Printf("Drone Rubygems Plugin built from %s\n", buildCommit)
+	logrus.Info(fmt.Printf("Drone Rubygems Plugin built from %s", buildCommit))
 
-	workspace := drone.Workspace{}
-	repo := drone.Repo{}
-	build := drone.Build{}
-	vargs := Params{}
+	app := cli.NewApp()
+	app.Name = "rubygems drone plugin"
+	app.Usage = "rubygems drone plugin"
+	app.Action = run
+	app.Version = buildCommit
+	app.Flags = []cli.Flag{
 
-	plugin.Param("workspace", &workspace)
-	plugin.Param("repo", &repo)
-	plugin.Param("build", &build)
-	plugin.Param("vargs", &vargs)
-	plugin.MustParse()
+		//
+		// config args
+		//
 
-	if (len(vargs.Username) == 0 || len(vargs.Password) == 0) && len(vargs.APIKey) == 0 {
-		fmt.Println("Please provide an API key or username/password credentials")
+		cli.StringFlag{
+			Name:   "api_key",
+			Usage:  "rubygems api key",
+			EnvVar: "RUBYGEMS_API_KEY,PLUGIN_API_KEY",
+		},
+		cli.StringFlag{
+			Name:   "gemspec",
+			Usage:  "path to gemspec",
+			EnvVar: "PLUGIN_GEMSPEC",
+		},
+		cli.StringFlag{
+			Name:   "host",
+			Usage:  "rubygems host",
+			EnvVar: "RUBYGEMS_HOST,PLUGIN_HOST",
+		},
+		cli.StringFlag{
+			Name:   "gemname",
+			Usage:  "Name of the gem",
+			EnvVar: "PLUGIN_GEMNAME",
+		},
+		cli.StringFlag{
+			Name:   "password",
+			Usage:  "password (only required without api_key)",
+			EnvVar: "RUBYGEMS_PASSWORD,PLUGIN_PASSWORD",
+		},
+		cli.StringFlag{
+			Name:   "username",
+			Usage:  "username (only required without api_key)",
+			EnvVar: "RUBYGEMS_USERNAME,PLUGIN_USERNAME",
+		},
+		cli.BoolFlag{
+			Name:   "skip_cleanup",
+			Usage:  "flag to deploy from the current file state",
+			EnvVar: "PLUGIN_SKIP_CLEANUP",
+		},
 
-		os.Exit(1)
-		return
+		//
+		// repo args
+		//
+
+		cli.StringFlag{
+			Name:   "repo.name",
+			Usage:  "repository name",
+			EnvVar: "DRONE_REPO_NAME",
+		},
 	}
 
-	dpl := buildDpl(&workspace, &repo, &build, &vargs)
-
-	dpl.Dir = workspace.Path
-	dpl.Stderr = os.Stderr
-	dpl.Stdout = os.Stdout
-
-	if err := dpl.Run(); err != nil {
-		fmt.Println(err)
-
-		os.Exit(1)
-		return
+	if err := app.Run(os.Args); err != nil {
+		logrus.Fatal(err)
 	}
 }
 
-func buildDpl(workspace *drone.Workspace, repo *drone.Repo, build *drone.Build, vargs *Params) *exec.Cmd {
-	args := []string{
-		"--provider=rubygems",
+func run(c *cli.Context) error {
+	plugin := Plugin{
+		Repo: Repo{
+			Name:    c.String("repo.name"),
+		},
+		Config: Config{
+			ApiKey:      c.String("api_key"),
+			Gemspec:     c.String("gemspec"),
+			Host:        c.String("host"),
+			Gemname:     c.String("gemname"),
+			Password:    c.String("password"),
+			Username:    c.String("username"),
+			SkipCleanup: c.Bool("skip_cleanup"),
+		},
 	}
 
-	if vargs.SkipCleanup {
-		args = append(args, "--skip-cleanup")
-	}
-
-	if len(vargs.APIKey) > 0 {
-		args = append(args, fmt.Sprintf(
-			"--api-key=%s",
-			vargs.APIKey))
-	}
-
-	if len(vargs.Username) > 0 {
-		args = append(args, fmt.Sprintf(
-			"--user=%s",
-			vargs.Username))
-	}
-
-	if len(vargs.Password) > 0 {
-		args = append(args, fmt.Sprintf(
-			"--password=%s",
-			vargs.Password))
-	}
-
-	if len(vargs.Host) > 0 {
-		args = append(args, fmt.Sprintf(
-			"--host=%s",
-			vargs.Host))
-	}
-
-	if len(vargs.Name) > 0 {
-		args = append(args, fmt.Sprintf(
-			"--app=%s",
-			vargs.Name))
-	} else {
-		args = append(args, fmt.Sprintf(
-			"--app=%s",
-			repo.Name))
-	}
-
-	if len(vargs.Gemspec) > 0 {
-		args = append(args, fmt.Sprintf(
-			"--gemspec=%s",
-			vargs.Gemspec))
-	} else {
-		args = append(args, fmt.Sprintf(
-			"--gemspec=%s",
-			repo.Name))
-	}
-
-	return exec.Command("dpl", args...)
+	return plugin.Exec()
 }
